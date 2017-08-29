@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\ManualTraversal.cs" />
     <Compile Include="Structures\Edge.cs" />
     <Compile Include="Structures\Graph.cs" />
     <Compile Include="Algorithms\Kruskal.cs" />

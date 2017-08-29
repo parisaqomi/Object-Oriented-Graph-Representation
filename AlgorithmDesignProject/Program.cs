@@ -51,6 +51,34 @@ namespace AlgorithmDesignProject
                         ShowListOfEdges(g);
                         WaitForUser();
                         break;
+                    case "deg":
+                        GetDegreeOfVertex(g);
+                        WaitForUser();
+                        break;
+                    case "ngls":
+                        ShowListOfVertexNeighbors(g);
+                        WaitForUser();
+                        break;
+                    case "cost":
+                        ShowListOfVertexNeighborsOrderedByCost(g);
+                        WaitForUser();
+                        break;
+                    case "clear":
+                        //EmptyGraph(g);
+                        if (Confirm("empty the graph?"))
+                            g = new Graph();
+                        else
+                            Console.WriteLine("canceled");
+                        WaitForUser();
+                        break;
+                    case "kruskal":
+                        Console.WriteLine("nothing happens");
+                        WaitForUser();
+                        break;
+                    case "mantrav":
+                        Console.WriteLine("nothing happens");
+                        WaitForUser();
+                        break;
                     default:
                         Console.WriteLine("The entered command doesn't exist:( ");
                         WaitForUser();
@@ -58,28 +86,44 @@ namespace AlgorithmDesignProject
                 }
 
                 
-                //Console.ReadKey();
-
+               
             }
             
         }
-#region Helpers
+
+        
+        #region Helpers
         static void Menu()
         {
-            Console.WriteLine("Please enter your desired command...");
+            Console.WriteLine("Please enter your desired command!");
+            //Vertex Actions
             Console.WriteLine("Vertex actions:");
-            //vertex actions
-            Console.WriteLine("\tadv: adds a new vertex");
-            Console.WriteLine("\tedv: edits an existing vertex");
-            Console.WriteLine("\tremv: remove an existing vertex");
-            Console.WriteLine("\tlsv: lists all vertices");
+            Console.WriteLine("\tadv: Adds a new vertex");
+            Console.WriteLine("\tedv: Edits an existing vertex");
+            Console.WriteLine("\tremv: Remove an existing vertex");
+            Console.WriteLine("\tlsv: Lists all vertices");
+            Console.WriteLine("\tdeg: Gets degree of the input vertex");
+            Console.WriteLine("\tngls: Lists all neighbors of a specific vertex");
+            Console.WriteLine("\tcost: Lists all neighbors of a specific vertex ordered by transport cost");//TODO: Implement Wrapper
+            //Edge Actions
+            Console.WriteLine("Edge actions:");
+            Console.WriteLine("\tade: Adds a new edges");
+            Console.WriteLine("\tede: Edits an existing edges");
+            Console.WriteLine("\treme: Remove an existing vertex");
+            Console.WriteLine("\tlse: Lists all edges");
+            //Graph Actions
+            Console.WriteLine("Graph actions:");
+            Console.WriteLine("\tclear: Clears all vertices and edges up!");
 
-            Console.WriteLine("edges actions:");
-            //edges actions
-            Console.WriteLine("\tade: adds a new edges");
-            Console.WriteLine("\tede: edits an existing edges");
-            Console.WriteLine("\treme: remove an existing vertex");
-            Console.WriteLine("\tlse: lists all edges");
+
+
+
+            //Algorithms
+            Console.WriteLine("Algorithms:");
+            Console.WriteLine("\tkruskal: Runs Kruskal!");//TODO: Implement Wrapper& Everything!
+            Console.WriteLine("\tmantrav: Runs manual traversal!");//TODO: Implement Wrapper& Everything!
+
+
 
         }
         static void Header()
@@ -92,6 +136,20 @@ namespace AlgorithmDesignProject
         {
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
+        }
+        static bool Confirm(string question)
+        {
+            Console.WriteLine(question);
+            while (true)
+            {
+                Console.WriteLine("Please Confirm! (y/n)");
+                var x = Console.ReadKey();
+                if (x.KeyChar == 'y' || x.KeyChar == 'Y')
+                    return true;
+                else if (x.KeyChar == 'n' || x.KeyChar == 'N')
+                    return false;
+                Console.WriteLine("Bad input.");
+            }
         }
         #endregion
 #region Wrappers
@@ -113,7 +171,7 @@ namespace AlgorithmDesignProject
                 Console.WriteLine("No adds was made... try again!");
             }
            
-            myG.ShowListOfVertices();
+            ShowListOfVertices(myG);
         }
         static void EditVertex(Graph myG)
         {
@@ -135,7 +193,7 @@ namespace AlgorithmDesignProject
             }
             
 
-            myG.ShowListOfVertices();
+            ShowListOfVertices(myG);
         }
         static void RemoveVertex(Graph myG)
         {
@@ -155,10 +213,69 @@ namespace AlgorithmDesignProject
         }
         static void ShowListOfVertices(Graph myG)
         {
-            myG.ShowListOfVertices();
+            foreach (var item in myG.Vertices)
+            {
+                
+                    Console.WriteLine(item.ToString());
+                
+            }
         }
+        private static void ShowListOfVertexNeighbors(Graph myG)
+        {
+            Console.WriteLine("please enter the name of the vertex:");
+            string vName = Console.ReadLine();
+            try
+            {
+               var v= myG.FindVertex(vName);
+                foreach (var item in v.GetNeighbors())
+                {
+                    Console.WriteLine(item.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Not found.try again!");
+            }
+        }
+        private static void ShowListOfVertexNeighborsOrderedByCost(Graph myG)
+        {
+            Console.WriteLine("please enter the name of the vertex:");
+            string vName = Console.ReadLine();
+            try
+            {
+                
+                
+                    Console.WriteLine(myG.GetSummaryOfPossibleMoves(vName));
+                
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Not found.try again!");
+            }
+        }
+        private static void GetDegreeOfVertex(Graph myG)
+        {
+            Console.WriteLine("please enter the name of the vertex:");
+            string vName = Console.ReadLine();
+            try
+            {
+                var v = myG.FindVertex(vName);
+                Console.WriteLine(v.GetTotalDegree());
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Not found.try again!");
+            }
+        }
+
         #endregion
-#region edges
+        #region edges
         static void AddEdge(Graph myG)
         {
             Console.WriteLine("Please enter the name of the beginning vertex:"); //////??????????
@@ -216,8 +333,27 @@ namespace AlgorithmDesignProject
                 myG.ShowListOfEdges();
         }
         
-    }
+    
 
+
+#endregion
+
+#region Graph
+private static void EmptyGraph(Graph g)
+{
+    if (Confirm("Are you sure you want to empty graph?"))
+    {
+        g.ClearGraphData(); Console.WriteLine("done");
+    }
+    else
+        Console.WriteLine("Canceled");
 }
-#endregion
-#endregion
+
+        #endregion
+
+        #region Algorithms
+
+        #endregion
+        #endregion
+    }
+}

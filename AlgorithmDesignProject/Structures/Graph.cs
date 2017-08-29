@@ -8,30 +8,62 @@ namespace AlgorithmDesignProject.Structures
     {
         public List<Vertex> Vertices;
         public List<Edge> Edges;
-        Dictionary<Vertex, bool> IsVisited;
+        //Dictionary<Vertex, bool> IsVisited;
 
         public Graph()
         {
             Vertices = new List<Vertex>();
             Edges = new List<Edge>();
-            IsVisited = new Dictionary<Vertex, bool>();
+            //IsVisited = new Dictionary<Vertex, bool>();
         }
 
         #region Edge Logic
 
         //AddEdge
-        public void AddEdge(string beginningVertexName, string endingVertexName, int weight)
+        public void AddEdge(string beginningVertexName, string endVertexName, int weight)
         {
             var beginningVertex = FindVertex(beginningVertexName);
-            var endingVertex = FindVertex(endingVertexName);
-            if (endingVertex == null || beginningVertex == null)
+            var endVertex = FindVertex(endVertexName);
+            if (endVertex == null || beginningVertex == null)
             {
                 throw new Exception("One or both of the specified vertices wasn't found!");
             }
             else
             {
-                Edge myEdge = new Edge(beginningVertex, endingVertex, weight);
-                Edges.Add(myEdge);
+                Edge myEdge = new Edge(beginningVertex, endVertex, weight);
+                try
+                {
+                    if (beginningVertex==endVertex)
+                    {
+                        //adding reference for beginning vertex
+                        beginningVertex.AddOutputEdge(myEdge);
+                        
+                        //adding reference for ending vertex 
+                        endVertex.AddInputEdge(myEdge);
+
+                        endVertex.AddConnectedEdge(myEdge);
+
+
+                    }
+                    else
+                    {
+                        //adding reference for beginning vertex
+                        beginningVertex.AddOutputEdge(myEdge);
+                        beginningVertex.AddConnectedEdge(myEdge);
+                        //adding reference for ending vertex 
+                        endVertex.AddInputEdge(myEdge);
+                        endVertex.AddConnectedEdge(myEdge);
+                    }
+                    
+
+                    Edges.Add(myEdge);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+               
             }
 
         }
@@ -66,7 +98,15 @@ namespace AlgorithmDesignProject.Structures
         {
             var edge = FindEdge(id);
             if (edge != null)
+            {
+                //first remove edge reference from related vertices
+                var beginningVertex = edge.BeginningVertex;
+                var endVertex = edge.EndVertex;
+                beginningVertex.DisconnectEdge(edge);
+                endVertex.DisconnectEdge(edge);
+
                 Edges.Remove(edge);
+            }
             else
                 throw new Exception("Specified edge was not found!");
 
@@ -128,14 +168,50 @@ namespace AlgorithmDesignProject.Structures
                 throw new Exception($"A vertex with the name {newName} already exists!");
 
         }
-        public void ShowListOfVertices()
+      
+        public string GetSummaryOfVertexNeighbors(string vertexName)
         {
-            foreach (var x in Vertices)
+            try
             {
-                Console.WriteLine(x.ToString());
+                var v = FindVertex(vertexName);
+                var neighbors = v.GetNeighbors();
+                string vnl = $"Neighbors of vertex {vertexName} are:{Environment.NewLine}";
+                foreach (var item in neighbors)
+                {
+                    vnl += $"{Environment.NewLine}{item.ToString()}";
+                }
+
+                return vnl;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
+            
+        }
+        public string GetSummaryOfPossibleMoves(string vertexName)
+        {
+            try
+            {
+                var v = FindVertex(vertexName);
+                var neighbors = v.GetNeighborsWithCosts();
+                neighbors.OrderBy(x => x.Item2);
+                string vnl = $"Neighbors of vertex {vertexName} are:{Environment.NewLine}";
+                foreach (var item in neighbors)
+                {
+                    vnl += $"{Environment.NewLine}{item.Item1.ToString()} with cost of {item.Item2.ToString()}";
+                }
+
+                return vnl;
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
-
         
         public void AddVertex(string vertexName)
         {
@@ -155,19 +231,32 @@ namespace AlgorithmDesignProject.Structures
             {
                 throw new Exception("Vertex not found!");
             }
-            //ممکنه یه یالی بهش اشاره کنه!
+            //TODO: Also remove connected edges first. It's better to prompt first...
             else
             {
+                //Let's have a copy of references to all connected edges
+                List<Edge> removableEdges = new List<Edge>();
+                //foreach (var edge in vertex.ConnectedEdges)
+                //{
+                //    removableEdges.Add(edge);
+                //}
+                //foreach (var item in removableEdges)
+                //{
+                //    vertex.DisconnectEdge(item);
+                //}
+                //foreach (var item in removableEdges)
+                //{
+                //    Edges.Remove(item);
+                //}
+                foreach (var item in removableEdges)
+                {
+                    RemoveEdge(item.ID);
+                }
+
                 Vertices.Remove(vertex);
             }
         }
-        #endregion
 
-        #region Graph Logic
-        //public bool HasCycle()
-        //{
-        //    return false;
-        //}
         #region Degree Logic
         public int GetMinDegree()
         {
@@ -212,6 +301,16 @@ namespace AlgorithmDesignProject.Structures
             return v;
         }
         #endregion
+
+
+        #endregion
+
+        #region Graph Logic
+        //public bool HasCycle()
+        //{
+        //    return false;
+        //}
+
 
         public void ClearGraphData()
         {

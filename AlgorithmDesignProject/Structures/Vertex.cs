@@ -7,9 +7,9 @@ namespace AlgorithmDesignProject.Structures
     {
         static int Count = 0;
         int ID;
-        List<Edge> InputEdges = new List<Edge>();
-        List<Edge> OutputEdges = new List<Edge>();
-        List<Edge> ConnectedEdges = new List<Edge>();
+        public List<Edge> InputEdges { get; private set;}
+        public List<Edge> OutputEdges { get; private set; }
+        public List<Edge> ConnectedEdges { get; private set; }
         public string Name { get; set; }
 
 
@@ -18,7 +18,10 @@ namespace AlgorithmDesignProject.Structures
             ID = Count;
             Name = vertexName;
             Count++;
-        }
+        InputEdges = new List<Edge>();
+        OutputEdges = new List<Edge>();
+        ConnectedEdges = new List<Edge>();
+    }
         
         #region Degree Logic
         public int GetOutputDegree()
@@ -50,6 +53,16 @@ namespace AlgorithmDesignProject.Structures
 
         }
 
+        internal void AddConnectedEdge(Edge edge)
+        {
+            if (!ConnectedEdges.Contains(edge))
+            {
+                ConnectedEdges.Add(edge);
+            }
+            else
+                throw new Exception("Edge already exists");//TODO:Remember to handle
+        }
+
         public void AddOutputEdge(Edge edge)
         {
             if (!OutputEdges.Contains(edge))
@@ -57,17 +70,17 @@ namespace AlgorithmDesignProject.Structures
                 OutputEdges.Add(edge);
             }
             else
-                throw new Exception("Edge not found. Nothing removed");//TODO:Remember to handle
+                throw new Exception("Edge already exists");//TODO:Remember to handle
         }
 
         public void RemoveInputEdge(Edge edge)
         {
             if (InputEdges.Contains(edge))
             {
-                OutputEdges.Remove(edge);
+                InputEdges.Remove(edge);
             }
             else
-                throw new Exception("Edge already exists. Nothing removed");//TODO:Remember to handle
+                throw new Exception("Edge does not exist. Nothing removed");//TODO:Remember to handle
         }
 
         public void RemoveOutputEdge(Edge edge)
@@ -77,7 +90,37 @@ namespace AlgorithmDesignProject.Structures
                 OutputEdges.Remove(edge);
             }
             else
-                throw new Exception("Edge already exists");//TODO:Remember to handle
+                throw new Exception("Edge does not exist. Nothing removed");//TODO:Remember to handle
+        }
+
+        public void RemoveConnectedEdge(Edge edge)
+        {
+            if (ConnectedEdges.Contains(edge))
+            {
+                ConnectedEdges.Remove(edge);
+            }
+            else
+                throw new Exception("Edge does not exist. Nothing removed");//TODO:Remember to handle
+        }
+        public void DisconnectEdge(Edge edge)
+        {
+            try
+            {
+                RemoveConnectedEdge(edge);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            if (OutputEdges.Contains(edge))
+            {
+                OutputEdges.Remove(edge);
+            }
+            if (InputEdges.Contains(edge))
+            {
+                InputEdges.Remove(edge);
+            }
         }
         #endregion
 
@@ -124,7 +167,7 @@ namespace AlgorithmDesignProject.Structures
         #endregion
         public override string ToString()
         {
-            return $"{ID}    :    {Name}";
+            return $"{ID} - {Name} - input Deg:{GetInputDegree()} - Output Deg:{GetOutputDegree()}";
         }
     }
 }
